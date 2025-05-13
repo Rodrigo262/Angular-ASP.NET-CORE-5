@@ -1,0 +1,10 @@
+<h1 *ngIf="peliculas?.length !== 0">Datos película {{ peliculas.length }}</h1>
+
+<div
+  *ngFor="let pelicula of peliculas; let index = index"
+  class="pelicula-contendor"
+>
+  <div>Película {{ index + 1 }} - {{ pelicula.titulo | uppercase }}</div>
+  <div>{{ pelicula.fechaLanzamiento | date : "dd-MMMM-yyyy" | uppercase }}</div>
+  <div>{{ pelicula.precio | currency }}</div>
+</div>
