@@ -1,10 +1,21 @@
-<h1 *ngIf="peliculas?.length !== 0">Datos película {{ peliculas.length }}</h1>
-
-<div
-  *ngFor="let pelicula of peliculas; let index = index"
-  class="pelicula-contendor"
->
-  <div>Película {{ index + 1 }} - {{ pelicula.titulo | uppercase }}</div>
-  <div>{{ pelicula.fechaLanzamiento | date : "dd-MMMM-yyyy" | uppercase }}</div>
-  <div>{{ pelicula.precio | currency }}</div>
-</div>
+<app-listado-generico [listado]="peliculas">
+  <ng-container contenido>
+    <div class="peliculas-contenedor">
+      <div
+        *ngFor="let pelicula of peliculas; let index = index"
+        class="pelicula-contenedor"
+      >
+        <a>
+          <img [src]="pelicula.poster" alt="Poster" />
+        </a>
+        <p>
+          <a>{{ pelicula.titulo }}</a>
+        </p>
+        <div>
+          <a mat-flat-button color="primary">Editar</a>
+          <button mat-flat-button color="warn" type="button">Borrar</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</app-listado-generico>

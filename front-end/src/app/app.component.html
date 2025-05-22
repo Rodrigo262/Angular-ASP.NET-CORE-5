@@ -1,9 +1,7 @@
-<h1>En cines</h1>
+<app-menu></app-menu>
 
-<app-listado-peliculas [peliculas]="peliculasEnCines"></app-listado-peliculas>
+<!-- <app-rating (rated)="manejarRated($event)"> </app-rating> -->
 
-<h1>Futuros estrenos</h1>
-
-<app-listado-peliculas
-  [peliculas]="peliculasProximosEstrenos"
-></app-listado-peliculas>
+<div class="contenedor">
+  <router-outlet></router-outlet>
+</div>
