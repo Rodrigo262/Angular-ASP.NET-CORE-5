@@ -6,10 +6,11 @@
   gap: 10px;
 }
 
-.pelicula-contendor{
+.pelicula-contenedor{
   margin-right: 2%;
   margin-bottom: 10px;
   text-align: center;
+  align-items: center;
 }
 
 p{
@@ -27,3 +28,4 @@ img {
 button{
   margin-left: 1rem;
 }
+
