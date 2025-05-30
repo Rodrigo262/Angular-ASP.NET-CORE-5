@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { ActorCreacionDto } from '../actor';
+import { ActorCreacionDTO } from '../actor';
 import { Router } from '@angular/router';
+import { ActoresService } from '../actores.service';
+import { parsearErroresAPI } from '../../utilidades/utilidades';
 
 @Component({
   selector: 'app-crear-actor',
@@ -9,8 +11,16 @@ import { Router } from '@angular/router';
 })
 export class CrearActorComponent {
   private router = inject(Router);
+  private actoresService = inject(ActoresService);
 
-  guardarCambios(actor: ActorCreacionDto) {
-    this.router.navigate(['/actores']);
+  errores: string[] = [];
+
+  guardarCambios(actor: ActorCreacionDTO): void {
+    this.actoresService.Post(actor).subscribe({
+      next: () => {
+        this.router.navigate(['/actores']);
+      },
+      error: (errors) => (this.errores = parsearErroresAPI(errors)),
+    });
   }
 }

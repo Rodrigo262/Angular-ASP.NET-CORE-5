@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CineCreacionDTO } from '../cine';
 import { Router } from '@angular/router';
+import { CinesService } from '../cines.service';
+import { parsearErroresAPI } from '../../utilidades/utilidades';
 
 @Component({
   selector: 'app-crear-cine',
@@ -9,8 +11,16 @@ import { Router } from '@angular/router';
 })
 export class CrearCineComponent {
   private router = inject(Router);
+  private cinesService = inject(CinesService);
 
-  guardarCambios(actor: CineCreacionDTO) {
-    this.router.navigate(['/actores']);
+  errores: string[] = [];
+
+  guardarCambios(cine: CineCreacionDTO): void {
+    this.cinesService.Post(cine).subscribe({
+      next: () => {
+        this.router.navigate(['/cines']);
+      },
+      error: (errors) => (this.errores = parsearErroresAPI(errors)),
+    });
   }
 }

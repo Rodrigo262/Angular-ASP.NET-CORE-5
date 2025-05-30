@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { GeneroCreacionDTO } from '../genero';
+import { GenerosService } from '../generos.service';
+import { parsearErroresAPI } from '../../utilidades/utilidades';
 
 @Component({
   selector: 'app-crear-genero',
@@ -10,8 +12,16 @@ import { GeneroCreacionDTO } from '../genero';
 export class CrearGeneroComponent {
   constructor() {}
   private router = inject(Router);
+  private generosService = inject(GenerosService);
+
+  errores: string[] = [];
 
   guardarCambios(genero: GeneroCreacionDTO): void {
-    this.router.navigate(['/generos']);
+    this.generosService.Post(genero).subscribe({
+      next: () => {
+        this.router.navigate(['/generos']);
+      },
+      error: (errors) => (this.errores = parsearErroresAPI(errors)),
+    });
   }
 }

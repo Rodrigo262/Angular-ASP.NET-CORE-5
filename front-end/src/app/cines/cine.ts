@@ -3,5 +3,6 @@ export interface CineCreacionDTO {
 }
 
 export interface CineDTO {
+  id: number;
   nombre: string;
 }

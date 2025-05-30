@@ -1,10 +1,15 @@
+using System.Threading.Tasks;
+using AutoMapper;
+using Azure.Core.GeoJson;
+using Backend.DTOs;
 using Backend.Entidades;
 using Backend.Filtros;
-using Backend.Respositorios;
+using Backend.Utilidades;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers
 {
@@ -13,63 +18,79 @@ namespace Backend.Controllers
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GenerosController : ControllerBase
     {
-        private readonly IRepositorio repositorio;
         private readonly ILogger<GenerosController> logger;
+        private readonly ApplicationDbContext context;
+        private readonly IMapper mapper;
 
-        public GenerosController(IRepositorio repositorio, ILogger<GenerosController> logger)
+        public GenerosController(
+            ILogger<GenerosController> logger,
+            ApplicationDbContext context,
+            IMapper mapper)
         {
-            this.repositorio = repositorio;
             this.logger = logger;
+            this.context = context;
+            this.mapper = mapper;
         }
 
         [HttpGet("GetAll")]
-        //[ResponseCache(Duration = 60)]
-        [ServiceFilter(typeof(MiFiltroDeAccion))]
-        public ActionResult<List<Genero>> Get()
+        public async Task<ActionResult<List<GeneroDTO>>> Get()
         {
-            logger.LogInformation("Vamos a mostrar los géneros");
-            return repositorio.GetAllGeneros();
+            var generos = await context.Generos.ToListAsync();
+            return mapper.Map<List<GeneroDTO>>(generos);
         }
 
-        [HttpGet("guid")]
-        public ActionResult<Guid> GetGuid()
+
+        [HttpGet("GetPaginated")]
+        public async Task<ActionResult<List<GeneroDTO>>> GetPaginated([FromQuery] PaginacionDTO paginacionDTO)
         {
-            return repositorio.GetGuid();
+            var queryable = context.Generos.AsQueryable();
+            await HttpContext.InsertParamsPaginationHeader(queryable);
+            var generos = await queryable.OrderBy(x => x.Nombre).Paginar(paginacionDTO).ToListAsync();
+            return mapper.Map<List<GeneroDTO>>(generos);
         }
+
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<Genero>> Get(int id)
+        public async Task<ActionResult<GeneroDTO>> Get(int id)
         {
-            //if (!ModelState.IsValid) return BadRequest(ModelState);
-            logger.LogDebug("Obteniendo un genero by id {0}", id);
-            var result = await repositorio.GetById(id);
+            var genero = await context.Generos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (result == null)
-            {
-                throw new Exception("El genero no fue encontrado");
-                logger.LogWarning("No se encontró el género con el id{0}", id);
-                return NotFound();
-            }
+            if (genero == null) return NotFound();
 
-            return Ok(result);
+            return mapper.Map<GeneroDTO>(genero);
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] Genero genero)
+        public async Task<ActionResult> Post([FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
-            repositorio.CrearGenero(genero);
+            var genero = mapper.Map<Genero>(generoCreacionDTO);
+            context.Add(genero);
+            await context.SaveChangesAsync();
             return NoContent();
         }
 
-        [HttpPut]
-        public ActionResult Put([FromBody] string id)
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put(int id, [FromBody] GeneroCreacionDTO generoCreacionDTO)
         {
+            var genero = await context.Generos.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (genero == null) return NotFound();
+
+            genero = mapper.Map(generoCreacionDTO, genero);
+            await context.SaveChangesAsync();
+
             return NoContent();
         }
 
-        [HttpDelete]
-        public ActionResult Delete([FromBody] string id)
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
         {
+            var exist = await context.Generos.AnyAsync(x => x.Id == id);
+
+            if (!exist) return NotFound();
+
+            //context.Remove(new Genero { Id = id });
+            await context.SaveChangesAsync();
             return NoContent();
         }
     }

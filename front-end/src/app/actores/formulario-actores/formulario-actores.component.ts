@@ -7,7 +7,7 @@ import {
   Output,
 } from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
-import { ActorCreacionDto, ActorDTO } from '../actor';
+import { ActorCreacionDTO, ActorDTO } from '../actor';
 import { fechaNoPuedeSerFutura } from '../../utilidades/validadores/fechaNoPuedeSerFutura';
 
 @Component({
@@ -21,8 +21,13 @@ export class FormularioActoresComponent implements OnInit {
   @Input()
   modelo?: ActorDTO;
 
+  @Input()
+  errores: string[] = [];
+
   @Output()
-  posteoFormulario = new EventEmitter<ActorCreacionDto>();
+  posteoFormulario = new EventEmitter<ActorCreacionDTO>();
+
+  imagenCambiada: boolean = false;
 
   form = this.formBuilder.group({
     nombre: ['', Validators.required],
@@ -41,12 +46,15 @@ export class FormularioActoresComponent implements OnInit {
   onSubmit(): void {
     if (!this.form.valid) return;
 
-    const actor = this.form.value as ActorCreacionDto;
-
+    if (!this.imagenCambiada) {
+      this.form.patchValue({ foto: null });
+    }
+    const actor = this.form.value as ActorCreacionDTO;
     this.posteoFormulario.emit(actor);
   }
 
   archivoSeleccionado(file: File) {
+    this.imagenCambiada = true;
     this.form.controls.foto.setValue(file);
   }
 }

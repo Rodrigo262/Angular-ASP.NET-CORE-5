@@ -1,9 +1,11 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { ActorAutoCompleteDto } from '../actor';
+import { ActorAutoCompleteDTO } from '../actor';
 import { MatTable } from '@angular/material/table';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ActoresService } from '../actores.service';
+import { parsearErroresAPI } from '../../utilidades/utilidades';
 
 @Component({
   selector: 'app-autocomplete-actores',
@@ -11,45 +13,33 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
   styleUrl: './autocomplete-actores.component.css',
 })
 export class AutocompleteActoresComponent implements OnInit {
+  private actoresServices = inject(ActoresService);
   control = new FormControl();
 
-  actores: ActorAutoCompleteDto[] = [
-    {
-      id: 1,
-      nombre: 'Tom Cruise',
-      foto: 'https://m.media-amazon.com/images/M/MV5BMmU1YWU1NmMtMjAyMi00MjFiLWFmZmUtOTc1ZjI5ODkxYmQyXkEyXkFqcGc@._V1_.jpg',
-      personaje: '',
-    },
-    {
-      id: 2,
-      nombre: 'Tom Holland',
-      foto: 'https://m.media-amazon.com/images/M/MV5BYzU3NWRhMjgtNmNmMS00YjQ1LWIyYzgtYzdkYjRjNWEzM2E3XkEyXkFqcGc@._V1_.jpg',
-      personaje: '',
-    },
-    {
-      id: 3,
-      nombre: 'Tom Hanks',
-      foto: 'https://m.media-amazon.com/images/M/MV5BMTQ2MjMwNDA3Nl5BMl5BanBnXkFtZTcwMTA2NDY3NQ@@._V1_.jpg',
-      personaje: '',
-    },
-  ];
+  actores: ActorAutoCompleteDTO[] = [];
 
-  actoresOriginal = this.actores;
+  errores: string[] = [];
 
   @Input()
-  actoresSeleccionados: ActorAutoCompleteDto[] = [];
+  actoresSeleccionados: ActorAutoCompleteDTO[] = [];
 
   columnasAMostrar = ['imagen', 'nombre', 'personaje', 'acciones'];
 
-  @ViewChild(MatTable) table!: MatTable<ActorAutoCompleteDto>;
+  @ViewChild(MatTable) table!: MatTable<ActorAutoCompleteDTO>;
 
   ngOnInit(): void {
-    // this.control.valueChanges.subscribe((valor) => {
-    //   this.actores = this.actoresOriginal;
-    //   this.actores = this.actores.filter(
-    //     (actor) => actor.nombre.indexOf(valor!) !== -1
-    //   );
-    // });
+    this.control.valueChanges.subscribe((valor) => {
+      if (typeof valor === 'string' && valor) {
+        this.actoresServices.GetByName(valor).subscribe({
+          next: (actores) => {
+            this.actores = actores;
+          },
+          error: (errors) => (this.errores = parsearErroresAPI(errors)),
+        });
+      } else {
+        this.actores = [];
+      }
+    });
   }
 
   actorSeleccionado(event: MatAutocompleteSelectedEvent) {
@@ -68,8 +58,6 @@ export class AutocompleteActoresComponent implements OnInit {
     if (this.table !== undefined) {
       this.table.renderRows();
     }
-
-    //if()
   }
 
   finalizarArrastre(event: CdkDragDrop<any[]>) {
@@ -85,9 +73,9 @@ export class AutocompleteActoresComponent implements OnInit {
     this.table.renderRows();
   }
 
-  eliminar(actor: ActorAutoCompleteDto) {
+  eliminar(actor: ActorAutoCompleteDTO) {
     const indice = this.actoresSeleccionados.findIndex(
-      (a: ActorAutoCompleteDto) => a.id === actor.id
+      (a: ActorAutoCompleteDTO) => a.id === actor.id
     );
     this.actoresSeleccionados.splice(indice, 1);
     this.table.renderRows();

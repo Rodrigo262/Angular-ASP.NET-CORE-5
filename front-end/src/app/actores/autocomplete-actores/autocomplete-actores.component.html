@@ -1,3 +1,7 @@
+<app-mostrar-errores
+  *ngIf="errores.length > 0"
+  [errores]="errores"
+></app-mostrar-errores>
 <form>
   <mat-form-field>
     <input
@@ -43,23 +47,22 @@
     <td mat-cell *matCellDef="let actor">
       <mat-form-field appearance="outline" style="margin: 10px 0">
         <mat-label>Personaje</mat-label>
-        <input matInput (ngModel)="(actor.personaje)" />
+        <input matInput [(ngModel)]="actor.personaje" />
       </mat-form-field>
-      {{ actor.personaje }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="acciones">
     <th mat-header-cell *matHeaderCellDef>Acción</th>
     <td mat-cell *matCellDef="let actor">
-      <mat-icon mat-list-icon (click)="eliminar(actor)">close</mat-icon>
+      <mat-icon mat-icon (click)="eliminar(actor)">close</mat-icon>
     </td>
   </ng-container>
 
   <tr
     mat-row
-    *matRowDef="let row; columns: columnasAMostrar"
     cdkDrag
     [cdkDragData]="row"
+    *matRowDef="let row; columns: columnasAMostrar"
   ></tr>
 </table>

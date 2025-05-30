@@ -1,0 +1,14 @@
+mat-chip-listbox{
+  display: inline-block;
+  margin-bottom: 0.5rem;
+}
+
+mat-chip{
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  height: 200px;
+  resize: none;
+}

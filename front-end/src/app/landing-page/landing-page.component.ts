@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { PeliculasService } from '../peliculas/peliculas.service';
+import { PeliculaDTO, PeliculasLandingDTO } from '../peliculas/pelicula';
 
 @Component({
   selector: 'app-landing-page',
@@ -6,55 +8,35 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './landing-page.component.css',
 })
 export class LandingPageComponent implements OnInit {
-  ngOnInit(): void {
-    this.peliculasEnCines = [
-      {
-        titulo: 'Spiderman',
-        fechaLanzamiento: new Date(),
-        precio: 1000,
-        poster:
-          'https://m.media-amazon.com/images/M/MV5BZGE3OThlNTUtYThiOC00NzliLTkyMmMtMGNkNGMzNDJmOGI1XkEyXkFqcGc@._V1_FMjpg_UX600_.jpg',
-      },
-      {
-        titulo: 'Hulk',
-        fechaLanzamiento: new Date(),
-        precio: 400,
-        poster:
-          'https://m.media-amazon.com/images/M/MV5BNTQxMmVlMTItMGFjYi00MTc2LWE5MzMtYjFhZWJmZGY0MTY5XkEyXkFqcGc@._V1_FMjpg_UX590_.jpg',
-      },
-      {
-        titulo: 'Avengers',
-        fechaLanzamiento: new Date(),
-        precio: 1500,
-        poster:
-          'https://m.media-amazon.com/images/M/MV5BZGM5MTFlYTMtMGU4NC00YzUzLThhY2UtM2IxZGI5MTlhYWZkXkEyXkFqcGc@._V1_.jpg',
-      },
-    ];
+  private peliculasServices = inject(PeliculasService);
 
-    this.peliculasProximosEstrenos = [
-      {
-        titulo: 'Avengers',
-        fechaLanzamiento: new Date(),
-        precio: 1000,
-      },
-      {
-        titulo: 'Thor',
-        fechaLanzamiento: new Date(),
-        precio: 400,
-      },
-      {
-        titulo: 'Hulk',
-        fechaLanzamiento: new Date(),
-        precio: 1500,
-      },
-    ];
+  constructor() {
+    this.cargarPelicula();
   }
 
-  title = 'front-end';
   peliculasEnCines!: any[];
+
   peliculasProximosEstrenos!: any[];
+
+  cargarPelicula() {
+    this.loadData();
+  }
+
+  loadData() {
+    this.peliculasServices.GetLanding().subscribe((modelo) => {
+      this.peliculasEnCines = modelo.enCines;
+      this.peliculasProximosEstrenos = modelo.proximosEstrenos;
+    });
+  }
+
+  ngOnInit(): void {}
+
+  title = 'front-end';
 
   manejarRated(voto: number): void {
     alert(voto);
+  }
+  borrado() {
+    this.loadData();
   }
 }

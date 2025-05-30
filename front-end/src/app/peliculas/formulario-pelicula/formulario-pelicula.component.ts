@@ -1,7 +1,15 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  input,
+  Input,
+  Output,
+} from '@angular/core';
 import { FormBuilder, FormControl, Validators } from '@angular/forms';
 import { PeliculaCreacionDTO, PeliculaDTO } from '../pelicula';
 import { MultipleSelectorModel } from '../../utilidades/selector-multiple/MultipleselectorModel';
+import { ActorAutoCompleteDTO } from '../../actores/actor';
 
 @Component({
   selector: 'app-formulario-pelicula',
@@ -14,42 +22,26 @@ export class FormularioPeliculaComponent {
   @Input()
   modelo?: PeliculaDTO;
 
+  @Input()
+  errores: string[] = [];
+
   @Output()
   posteoFormulario = new EventEmitter<PeliculaCreacionDTO>();
 
-  generosNoSeleccionados: MultipleSelectorModel[] = [
-    {
-      llave: 1,
-      valor: 'Drama',
-    },
-    {
-      llave: 2,
-      valor: 'Comedia',
-    },
-    {
-      llave: 3,
-      valor: 'Terror',
-    },
-  ];
+  @Input({ required: true })
+  generosNoSeleccionados: MultipleSelectorModel[] = [];
 
+  @Input({ required: true })
   generosSeleccionados: MultipleSelectorModel[] = [];
 
-  cinesNoSeleccionados: MultipleSelectorModel[] = [
-    {
-      llave: 1,
-      valor: 'Cine1',
-    },
-    {
-      llave: 2,
-      valor: 'Cine2',
-    },
-    {
-      llave: 3,
-      valor: 'Cine3',
-    },
-  ];
+  @Input({ required: true })
+  cinesNoSeleccionados: MultipleSelectorModel[] = [];
 
+  @Input({ required: true })
   cinesSeleccionados: MultipleSelectorModel[] = [];
+
+  @Input({ required: true })
+  actoresSeleccionados: ActorAutoCompleteDTO[] = [];
 
   form = this.formBuilder.group({
     titulo: ['', Validators.required],
@@ -60,8 +52,9 @@ export class FormularioPeliculaComponent {
       validators: [Validators.required],
     }),
     poster: new FormControl<File | string | null>(null),
-    generosId: new FormControl<number[] | null>(null),
-    cinesId: new FormControl<number[] | null>(null),
+    generosIds: new FormControl<number[] | null>(null),
+    cinesIds: new FormControl<number[] | null>(null),
+    actores: new FormControl<ActorAutoCompleteDTO[] | null>(null),
   });
 
   ngOnInit(): void {
@@ -72,10 +65,15 @@ export class FormularioPeliculaComponent {
   guardarCambios(): void {
     if (!this.form.valid) return;
     const generosId = this.generosSeleccionados.map((val) => val.llave);
-    this.form.get('generosId')?.setValue(generosId);
+    this.form.get('generosIds')?.setValue(generosId);
 
     const cinesId = this.cinesSeleccionados.map((val) => val.llave);
-    this.form.get('cinesId')?.setValue(cinesId);
+    this.form.get('cinesIds')?.setValue(cinesId);
+
+    // const actores = this.actoresSeleccionados.map((val) => {
+    //   return { id: val.id, personaje: val.personaje };
+    // });
+    this.form.get('actores')?.setValue(this.actoresSeleccionados);
 
     const pelicula = this.form.value as PeliculaCreacionDTO;
     this.posteoFormulario.emit(pelicula);

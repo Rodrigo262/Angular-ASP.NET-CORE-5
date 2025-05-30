@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import {
   BrowserModule,
   provideClientHydration,
@@ -11,7 +12,9 @@ import { ListadoGenericoComponent } from './utilidades/listado-generico/listado-
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MenuComponent } from './menu/menu.component';
 import { MaterialModule } from './material/material.module';
+import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 
 import { RatingComponent } from './utilidades/rating/rating.component';
 import { MapaComponent } from './utilidades/mapa/mapa.component';
@@ -41,6 +44,10 @@ import { CrearPeliculaComponent } from './peliculas/crear-pelicula/crear-pelicul
 import { SelectorMultipleComponent } from './utilidades/selector-multiple/selector-multiple.component';
 import { AutocompleteActoresComponent } from './actores/autocomplete-actores/autocomplete-actores.component';
 
+import { MostrarErroresComponent } from './utilidades/mostrar-errores/mostrar-errores.component';
+import { DetallePeliculaComponent } from './peliculas/detalle-pelicula/detalle-pelicula.component';
+import { AutorizadoComponent } from './seguridad/autorizado/autorizado.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -69,12 +76,18 @@ import { AutocompleteActoresComponent } from './actores/autocomplete-actores/aut
     CrearPeliculaComponent,
     SelectorMultipleComponent,
     AutocompleteActoresComponent,
+    MostrarErroresComponent,
+    DetallePeliculaComponent,
+    AutorizadoComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     MaterialModule,
+    FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
+    SweetAlert2Module.forRoot(),
   ],
   providers: [provideClientHydration(), provideAnimationsAsync()],
   bootstrap: [AppComponent],
