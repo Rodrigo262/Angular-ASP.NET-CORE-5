@@ -13,6 +13,8 @@ export function parsearErroresAPI(response: any): string[] {
   if (response.error) {
     if (typeof response.error == 'string') {
       resultado.push(response.error);
+    } else if (Array.isArray(response.error)) {
+      response.error.foreach((valor: any) => resultado.push(valor.description));
     } else {
       const mapaErrores = response.error.errors;
       const entradas = Object.entries(mapaErrores);
@@ -49,4 +51,29 @@ export function formatearFecha(date: Date) {
   const year = parts.find((part) => part.type === 'year')?.value;
 
   return `${year}-${month}-${day}`;
+}
+
+export function extraerErrores(obj: any): string[] {
+  const err = obj.error.errors;
+
+  let mensajeError: string[] = [];
+
+  for (let llave in err) {
+    let campo = llave;
+    const mensajeConCampos = err[llave].map(
+      (mensaje: string) => `${campo}: ${mensaje}`
+    );
+    mensajeError = mensajeError.concat(mensajeConCampos);
+  }
+  return mensajeError;
+}
+
+export function extraerErroresEntity(obj: any): string[] {
+  let mensajesDeError: string[] = [];
+
+  for (let i = 0; i < obj.error.length; i++) {
+    const element = obj.error[i];
+    mensajesDeError.push(element.description);
+  }
+  return mensajesDeError;
 }

@@ -9,16 +9,35 @@
       ><mat-icon>search</mat-icon> Buscar Películas</a
     >
   </div>
-  <div>
-    <a mat-button routerLink="generos">Géneros</a>
-  </div>
-  <div>
-    <a mat-button routerLink="actores">Actores</a>
-  </div>
-  <div>
-    <a mat-button routerLink="cines">Cines</a>
-  </div>
-  <div>
-    <a mat-button routerLink="peliculas/crear">Crear Película</a>
-  </div>
+  <app-autorizado [rol]="'admin'">
+    <div class="autorizado" autorizado>
+      <div>
+        <a mat-button routerLink="generos">Géneros</a>
+      </div>
+      <div>
+        <a mat-button routerLink="actores">Actores</a>
+      </div>
+      <div>
+        <a mat-button routerLink="cines">Cines</a>
+      </div>
+      <div>
+        <a mat-button routerLink="peliculas/crear">Crear Película</a>
+      </div>
+      <div>
+        <a mat-button routerLink="usuarios">Usuarios</a>
+      </div>
+    </div>
+  </app-autorizado>
+
+  <div class="espacio"></div>
+  <app-autorizado>
+    <div class="autorizado" autorizado>
+      <span>Hola, {{ seguridadService.getCampoJWT("email") }} </span>
+      <a mat-button (click)="seguridadService.logout()">Logout</a>
+    </div>
+    <div class="autorizado" noAutorizado>
+      <a mat-button routerLink="login">Login</a>
+      <a mat-button routerLink="registro">Registro</a>
+    </div>
+  </app-autorizado>
 </mat-toolbar>

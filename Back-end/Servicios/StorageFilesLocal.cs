@@ -1,6 +1,6 @@
 using System;
 
-namespace Backend.Utilidades;
+namespace Backend.Servicios;
 
 public class StorageFilesLocal : IStorageFiles
 {

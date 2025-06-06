@@ -25,7 +25,7 @@ namespace Backend.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("getAll")]
         public async Task<ActionResult<List<CineDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             var queryable = context.Cines.AsQueryable();

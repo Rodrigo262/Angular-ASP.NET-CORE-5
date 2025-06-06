@@ -15,7 +15,7 @@ namespace Backend.Controllers
 {
     [Route("api/generos")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "EsAdmin")]
     public class GenerosController : ControllerBase
     {
         private readonly ILogger<GenerosController> logger;
@@ -32,7 +32,8 @@ namespace Backend.Controllers
             this.mapper = mapper;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("getAll")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<GeneroDTO>>> Get()
         {
             var generos = await context.Generos.ToListAsync();
@@ -40,7 +41,7 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("GetPaginated")]
+        [HttpGet("getPaginated")]
         public async Task<ActionResult<List<GeneroDTO>>> GetPaginated([FromQuery] PaginacionDTO paginacionDTO)
         {
             var queryable = context.Generos.AsQueryable();

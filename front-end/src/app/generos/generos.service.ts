@@ -17,14 +17,14 @@ export class GenerosService {
   constructor() {}
 
   public GetAll(): Observable<GeneroDTO[]> {
-    return this.httpService.get<GeneroDTO[]>(`${this.urlBase}GetAll`);
+    return this.httpService.get<GeneroDTO[]>(`${this.urlBase}getAll`);
   }
 
   public GetPaginated(
     paginacion: PaginacionDTO
   ): Observable<HttpResponse<GeneroDTO[]>> {
     let queryParams = construirQueryParams(paginacion);
-    return this.httpService.get<GeneroDTO[]>(`${this.urlBase}GetPaginated`, {
+    return this.httpService.get<GeneroDTO[]>(`${this.urlBase}getPaginated`, {
       params: queryParams,
       observe: 'response',
     });

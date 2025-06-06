@@ -1,4 +1,4 @@
-namespace Backend.Utilidades;
+namespace Backend.Servicios;
 
 public interface IStorageFiles
 {

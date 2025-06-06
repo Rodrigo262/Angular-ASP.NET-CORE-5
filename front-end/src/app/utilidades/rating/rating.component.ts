@@ -8,6 +8,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 export class RatingComponent implements OnInit {
   @Input()
   maximRating: number = 5;
+
   @Input()
   ratingSeleccionado: number = 0;
 

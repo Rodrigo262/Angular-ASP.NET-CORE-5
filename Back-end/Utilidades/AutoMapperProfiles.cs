@@ -2,6 +2,7 @@ using AutoMapper;
 using Backend.DTOs;
 using Backend.DTOs.Peliculas;
 using Backend.Entidades;
+using Microsoft.AspNetCore.Identity;
 using NetTopologySuite.Geometries;
 
 namespace Backend.Utilidades;
@@ -15,6 +16,12 @@ public class AutoMapperProfiles : Profile
         ConfigureMapActores();
         ConfigureMapCines(geometryFactory);
         ConfigureMapPeliculas();
+        ConfigureUser();
+    }
+
+    private void ConfigureUser()
+    {
+        CreateMap<IdentityUser, UsuarioDTO>();
     }
 
     private void ConfigureMapGeneros()

@@ -35,7 +35,7 @@ export class PeliculasService {
   }
 
   public PostGet(): Observable<PeliculaPostGet> {
-    return this.httpService.get<PeliculaPostGet>(`${this.urlBase}CinesGeneros`);
+    return this.httpService.get<PeliculaPostGet>(`${this.urlBase}cinesGeneros`);
   }
 
   public Post(peliculaCreacionDTO: PeliculaCreacionDTO) {
@@ -48,12 +48,12 @@ export class PeliculasService {
   }
 
   public GetLanding(): Observable<PeliculasLandingDTO> {
-    return this.httpService.get<PeliculasLandingDTO>(`${this.urlBase}Landing`);
+    return this.httpService.get<PeliculasLandingDTO>(`${this.urlBase}landing`);
   }
 
   public PutGet(id: number): Observable<PeliculasPutGetDTO> {
     return this.httpService.get<PeliculasPutGetDTO>(
-      `${this.urlBase}PutGet/${id}`
+      `${this.urlBase}putGet/${id}`
     );
   }
 

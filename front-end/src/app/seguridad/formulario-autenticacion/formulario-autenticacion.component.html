@@ -1,0 +1,22 @@
+<h2>{{ titulo }}</h2>
+<app-mostrar-errores [errores]="errores"></app-mostrar-errores>
+
+<form [formGroup]="form" (submit)="guardarCambios()">
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input [formControl]="form.controls.email" matInput />
+    <mat-error>{{ getMessageErrorEmail() }}</mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input [formControl]="form.controls.password" matInput />
+    <mat-error>El campo Password es requerido</mat-error>
+  </mat-form-field>
+
+  <div>
+    <button mat-flat-button color="primary" [disabled]="form.invalid">
+      {{ titulo }}
+    </button>
+  </div>
+</form>

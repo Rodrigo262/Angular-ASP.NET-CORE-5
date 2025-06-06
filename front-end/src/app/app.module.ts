@@ -1,5 +1,11 @@
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClientModule,
+  provideHttpClient,
+  withFetch,
+  withInterceptors,
+} from '@angular/common/http';
 import {
   BrowserModule,
   provideClientHydration,
@@ -47,6 +53,11 @@ import { AutocompleteActoresComponent } from './actores/autocomplete-actores/aut
 import { MostrarErroresComponent } from './utilidades/mostrar-errores/mostrar-errores.component';
 import { DetallePeliculaComponent } from './peliculas/detalle-pelicula/detalle-pelicula.component';
 import { AutorizadoComponent } from './seguridad/autorizado/autorizado.component';
+import { RegistroComponent } from './seguridad/registro/registro.component';
+import { LoginComponent } from './seguridad/login/login.component';
+import { FormularioAutenticacionComponent } from './seguridad/formulario-autenticacion/formulario-autenticacion.component';
+import { SeguridadInterceptorService } from './seguridad/seguridad-interceptor.service';
+import { IndiceUsuariosComponent } from './seguridad/indice-usuarios/indice-usuarios.component';
 
 @NgModule({
   declarations: [
@@ -79,6 +90,10 @@ import { AutorizadoComponent } from './seguridad/autorizado/autorizado.component
     MostrarErroresComponent,
     DetallePeliculaComponent,
     AutorizadoComponent,
+    RegistroComponent,
+    LoginComponent,
+    FormularioAutenticacionComponent,
+    IndiceUsuariosComponent,
   ],
   imports: [
     BrowserModule,
@@ -89,7 +104,19 @@ import { AutorizadoComponent } from './seguridad/autorizado/autorizado.component
     HttpClientModule,
     SweetAlert2Module.forRoot(),
   ],
-  providers: [provideClientHydration(), provideAnimationsAsync()],
+  providers: [
+    //provideClientHydration(),
+    provideAnimationsAsync(),
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: SeguridadInterceptorService,
+    //   multi: true,
+    // },
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([SeguridadInterceptorService])
+    ),
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

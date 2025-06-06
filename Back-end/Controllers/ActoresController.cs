@@ -3,13 +3,17 @@ using Backend.DTOs;
 using Backend.DTOs.Peliculas;
 using Backend.Entidades;
 using Backend.Utilidades;
+using Backend.Servicios;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Backend.Controllers
 {
     [Route("api/actores")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "esadmin")]
     public class ActoresController : ControllerBase
     {
         private readonly ILogger<ActoresController> logger;
@@ -30,7 +34,7 @@ namespace Backend.Controllers
             this.storageFiles = storageFiles;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet("getAll")]
         public async Task<ActionResult<List<ActorDTO>>> Get([FromQuery] PaginacionDTO paginacionDTO)
         {
             var queryable = context.Actores.AsQueryable();

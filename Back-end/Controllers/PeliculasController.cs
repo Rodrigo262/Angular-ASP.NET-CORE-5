@@ -1,9 +1,14 @@
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using AutoMapper;
 using Backend.DTOs;
 using Backend.DTOs.Peliculas;
 using Backend.Entidades;
+using Backend.Servicios;
 using Backend.Utilidades;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,25 +16,28 @@ namespace Backend.Controllers
 {
     [Route("api/peliculas")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = "esadmin")]
     public class PeliculasController : ControllerBase
     {
         private readonly ILogger<PeliculasController> logger;
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IStorageFiles storageFiles;
-
+        private readonly UserManager<IdentityUser> userManager;
 
         private const string container = "peliculas";
         public PeliculasController(
             ILogger<PeliculasController> logger,
             ApplicationDbContext context,
             IMapper mapper,
-            IStorageFiles storageFiles)
+            IStorageFiles storageFiles,
+            UserManager<IdentityUser> userManager)
         {
             this.logger = logger;
             this.context = context;
             this.mapper = mapper;
             this.storageFiles = storageFiles;
+            this.userManager = userManager;
         }
 
 
@@ -48,7 +56,7 @@ namespace Backend.Controllers
             return NoContent();
         }
 
-        [HttpGet("CinesGeneros")]
+        [HttpGet("cinesGeneros")]
         public async Task<ActionResult<PeliculasPostGetDTO>> GetCinesGeneros()
         {
             var cines = await context.Cines.ToListAsync();
@@ -61,31 +69,61 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<ActionResult<PeliculaDTO>> Get(int id)
         {
-            var pelicula = await context.Pelicula
+            var pelicula = await context.Peliculas
                 .Include(x => x.PeliculasGeneros).ThenInclude(x => x.Genero)
                 .Include(x => x.PeliculasCines).ThenInclude(x => x.Cine)
                 .Include(x => x.PeliculasActores).ThenInclude(x => x.Actor).FirstOrDefaultAsync(x => x.Id == id);
 
             if (pelicula is null) return NotFound();
 
+            double promedioVoto = 0.0;
+            int usuarioVoto = 0;
+
+            if (await context.Ratings.AnyAsync(x => x.PeliculaId == id))
+            {
+                promedioVoto = await context.Ratings
+                .Where(x => x.PeliculaId == id)
+                .AverageAsync(x => x.Puntuacion);
+
+                if (HttpContext.User.Identity.IsAuthenticated)
+                {
+                    var email = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email).Value;
+                    var usuario = await userManager.FindByEmailAsync(email);
+                    var usuarioId = usuario.Id;
+                    var ratingDB = await context.Ratings
+                    .FirstOrDefaultAsync(x => x.UsuarioId == usuarioId && x.PeliculaId == id);
+
+                    if (ratingDB != null)
+                    {
+                        usuarioVoto = ratingDB.Puntuacion;
+                    }
+                }
+
+
+            }
+
             var dto = mapper.Map<PeliculaDTO>(pelicula);
+            dto.VotoUsuario = usuarioVoto;
+            dto.PromedioVoto = promedioVoto;
             dto.Actores = dto.Actores.OrderBy(x => x.Orden).ToList();
 
             return dto;
         }
 
-        [HttpGet("Landing")]
+        [HttpGet("landing")]
+        [AllowAnonymous]
         public async Task<ActionResult<LandingPageDTO>> Get()
         {
-            var proximosEstrenos = await context.Pelicula
+            var proximosEstrenos = await context.Peliculas
                 .Where(x => x.FechaLanzamiento > DateTime.Today)
                 .OrderBy(x => x.FechaLanzamiento)
                 .Take(6)
                 .ToListAsync();
 
-            var enCines = await context.Pelicula
+            var enCines = await context.Peliculas
                 .Where(x => x.EnCines)
                 .OrderBy(x => x.FechaLanzamiento)
                 .Take(6)
@@ -99,7 +137,7 @@ namespace Backend.Controllers
             return resultado;
         }
 
-        [HttpGet("PutGet/{id:int}")]
+        [HttpGet("putGet/{id:int}")]
         public async Task<ActionResult<PeliculasPutGetDTO>> PutGet(int id)
         {
             var peliculaResult = await Get(id);
@@ -125,10 +163,11 @@ namespace Backend.Controllers
         }
 
 
-        [HttpGet("Filtrar")]
+        [HttpGet("filtrar")]
+        [AllowAnonymous]
         public async Task<ActionResult<List<PeliculaDTO>>> Filtrar([FromQuery] PeliculasFiltrarDTO peliculasFiltrarDTO)
         {
-            var peliculasQueryable = context.Pelicula.AsQueryable();
+            var peliculasQueryable = context.Peliculas.AsQueryable();
 
             if (!string.IsNullOrEmpty(peliculasFiltrarDTO.Titulo))
                 peliculasQueryable = peliculasQueryable.Where(x => x.Titulo.Contains(peliculasFiltrarDTO.Titulo));
@@ -156,7 +195,7 @@ namespace Backend.Controllers
 
         public async Task<ActionResult> Put(int id, [FromForm] PeliculaCreacionDTO peliculaCreacionDTO)
         {
-            var pelicula = await context.Pelicula
+            var pelicula = await context.Peliculas
                 .Include(x => x.PeliculasGeneros)
                 .Include(x => x.PeliculasCines)
                 .Include(x => x.PeliculasActores)
@@ -179,7 +218,7 @@ namespace Backend.Controllers
         [HttpDelete("{id:int}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var pelicula = await context.Pelicula.FirstOrDefaultAsync(x => x.Id == id);
+            var pelicula = await context.Peliculas.FirstOrDefaultAsync(x => x.Id == id);
 
             if (pelicula is null) return NotFound();
 

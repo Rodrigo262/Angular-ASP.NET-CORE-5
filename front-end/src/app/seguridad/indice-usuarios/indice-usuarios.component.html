@@ -1,0 +1,66 @@
+<h3>Usuarios</h3>
+
+<app-listado-generico [listado]="usuarios">
+  <ng-container contenido>
+    <table
+      #table
+      mat-table
+      [dataSource]="usuarios"
+      class="mat-elevation-z8 tabla-indice"
+    >
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-flat-button
+            color="primary"
+            (confirm)="hacerAdmin(element.email)"
+            [swal]="{
+              title: 'Confirmación modificar registro',
+              text:
+                '¿Está seguro que desea hacer administrador a ' +
+                element.email +
+                '?',
+              showCancelButton: true
+            }"
+          >
+            HacerAdmin
+          </button>
+          <button
+            mat-flat-button
+            color="warn"
+            (confirm)="removerAdmin(element.email)"
+            [swal]="{
+              title: 'Confirmación modificar registro',
+              text:
+                '¿Está seguro que desea borrar como administrador a ' +
+                element.email +
+                '?',
+              showCancelButton: true
+            }"
+          >
+            Remover Admin
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="columnasAMostrar"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnasAMostrar"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20, 50]"
+      showFirstLastButtons
+      [pageIndex]="paginacion.page - 1"
+      [pageSize]="paginacion.pageSize"
+      class="mat-elevation-z8"
+      [length]="totalItems"
+      (page)="actualizarPaginacion($event)"
+    >
+    </mat-paginator>
+  </ng-container>
+</app-listado-generico>
